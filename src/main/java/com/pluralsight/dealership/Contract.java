@@ -1,7 +1,5 @@
 package com.pluralsight.dealership;
 
-import com.pluralsight.Vehicle;
-
 public abstract class Contract {
     private String date;
     private String name;
@@ -39,13 +37,14 @@ public abstract class Contract {
         this.email = email;
     }
 
-    public Vehicle getVehicle() {
+    public Vehicle getVehicleSold() {
         return vehicle;
     }
 
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
     }
+
 
     public abstract double getTotalPrice();
 

@@ -20,7 +20,7 @@ public class ContractFileManager {
     private void writeSalesContract(SalesContract contract) {
         Vehicle vehicle = contract.getVehicleSold();
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(CONTRACTS_FILE));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(CONTRACTS_FILE,true));
             String line = String.format("SALE|%s|%s|%s|%d|%d|%s|%s|%s|%s|%d|%.2f|%.2f|%.2f|%.2f|%.2f|%s|%.2f",
                     contract.getDate(),
                     contract.getName(),
@@ -42,6 +42,7 @@ public class ContractFileManager {
             );
             writer.write(line);
             writer.newLine();
+            writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -71,6 +72,7 @@ public class ContractFileManager {
 
             writer.write(line);
             writer.newLine();
+            writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

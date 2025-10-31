@@ -1,5 +1,7 @@
 package com.pluralsight.dealership;
 
+import java.time.Year;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -26,6 +28,7 @@ public class UserInterface {
             System.out.println("7. Get all vehicles");
             System.out.println("8. Add vehicle");
             System.out.println("9. Remove vehicle");
+            System.out.println("10. Sell or Lease a vehicle");
             System.out.println("99. Quit");
 
             System.out.print("Enter your choice: ");
@@ -58,6 +61,9 @@ public class UserInterface {
                     break;
                 case "9":
                     processRemoveVehicleRequest();
+                    break;
+                case "10":
+                    processSellOrLease();
                     break;
                 case "99":
                     quit = true;
@@ -192,6 +198,88 @@ public class UserInterface {
         for (Vehicle vehicle : vehicles) {
             System.out.println(vehicle.toString());
         }
+    }
+
+
+    private void processSellOrLease(){
+        displayVehicles(dealership.getAllVehicles());
+
+        Vehicle vehicle = null;
+        int vin = -1;
+
+        do {
+            try {
+                System.out.println("Please enter the vin of the vehicle you'd like to Sell/Lease: ");
+                vin = scanner.nextInt();
+                scanner.nextLine();
+
+                vehicle = dealership.getVehicleByVin(vin);
+
+                if (vehicle == null) {
+                    System.out.println("Vehicle not found. Please try again.");
+                    vin = -1;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid Entry. Please enter a valid VIN.");
+                scanner.nextLine();
+                vin = -1;
+            }
+        } while (vehicle == null);
+
+        System.out.println("Enter contract date (YYYYMMDD): ");
+        String date = scanner.nextLine().trim();
+
+        System.out.println("Enter customer name: ");
+        String customerName = scanner.nextLine().trim();
+
+        System.out.println("Enter customer email: ");
+        String customerEmail = scanner.nextLine().trim();
+
+        System.out.println("Is this Sale or Lease? ");
+        String type = scanner.nextLine().trim();
+
+        Contract contract = null;
+
+        if (type.equalsIgnoreCase("Lease")) {
+            int currentYear = Year.now().getValue();
+            int vehicleAge = currentYear - vehicle.getYear();
+
+            if (vehicleAge > 3) {
+                System.out.println("ERROR: Cannot lease a vehicle over 3 years old.");
+                return;
+            }
+
+            contract = new LeaseContract(date, customerName, customerEmail, vehicle);
+
+
+        } else if (type.equalsIgnoreCase("Sale")) {
+            double salesTax = vehicle.getPrice() * 0.05;
+            double recordingFee = 100.00;
+            double processingFee = (vehicle.getPrice() < 10000) ? 295.00 : 495.00;
+
+            System.out.println("Would you like to finance? (Y/N): ");
+            String financeChoice = scanner.nextLine().trim().toUpperCase();
+            boolean isFinance = financeChoice.equals("Y");
+
+            contract = new SalesContract(date, customerName, customerEmail, vehicle,
+                    salesTax, recordingFee, processingFee, isFinance);
+            System.out.println("Sales contract created!");
+
+        } else {
+            System.out.println("Invalid option. Returning to menu.");
+            return;
+        }
+
+        ContractFileManager contractManager = new ContractFileManager();
+        contractManager.saveContract(contract);
+
+        dealership.removeVehicle(vehicle);
+
+        DealershipFileManager df = new DealershipFileManager();
+        df.saveDealership(dealership);
+        System.out.println("=".repeat(80));
+        System.out.println("\nContract saved successfully!");
+        System.out.println("=".repeat(80));
     }
 
 }

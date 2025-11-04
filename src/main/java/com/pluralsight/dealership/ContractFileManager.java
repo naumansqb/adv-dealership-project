@@ -51,7 +51,7 @@ public class ContractFileManager {
     private void writeLeaseContract(LeaseContract contract) {
         Vehicle vehicle = contract.getVehicleSold();
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(CONTRACTS_FILE));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(CONTRACTS_FILE,true));
             String line = String.format("LEASE|%s|%s|%s|%d|%d|%s|%s|%s|%s|%d|%.2f|%.2f|%.2f|%.2f|%.2f",
                     contract.getDate(),
                     contract.getName(),
